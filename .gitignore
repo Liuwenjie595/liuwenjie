@@ -1,0 +1,11 @@
+.DS_Store
+.cursor/
+Input/
+tmp_ocr/
+tmp_ocr2/
+Streamlit_business_board.py
+Streamlit_math.py
+requirements.txt
+generate_makeup_three_page_report.py
+催补率最终版HTML流程.md
+续费标杆跑数说明.md

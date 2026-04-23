@@ -56,7 +56,7 @@ body { margin:0; background:
 .group-cell { font-weight:600; background:#f9fbff; }
 .filter-reset, .toggle-btn, .collapse-btn { border:1px solid var(--line); background:#fff; color:var(--text); border-radius:12px; padding:7px 12px; font-size:12px; cursor:pointer; }
 .toggle-btn.active { background:var(--soft-red); color:var(--danger); border-color:#efb4b4; }
-.collapsed-section .table-wrap, .collapsed-section .section-tools { display:none; }
+.collapsed-section .table-wrap { display:none; }
 .table-wrap { overflow:auto; padding-bottom:2px; }
 table { width:100%; border-collapse:collapse; min-width:1020px; }
 th, td { border-bottom:1px solid var(--line); padding:11px 12px; font-size:13px; text-align:center; vertical-align:top; }
@@ -108,6 +108,27 @@ tbody tr.row-total { background:#eef4ff; font-weight:700; }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   pageTabs.forEach((btn) => btn.addEventListener('click', () => switchPage(btn.dataset.page)));
+
+  function shiftDisplayDate(text) {
+    return String(text || '').replace(/(\d{1,2})月(\d{1,2})日/g, (_, month, day) => {
+      const dt = new Date(2026, Number(month) - 1, Number(day));
+      dt.setDate(dt.getDate() - 1);
+      return `${dt.getMonth() + 1}月${dt.getDate()}日`;
+    });
+  }
+
+  function syncHomepageBusinessDates() {
+    const home = document.getElementById('page-home');
+    if (!home || home.dataset.dateShifted === 'true') return;
+    home.dataset.dateShifted = 'true';
+
+    const coverage = home.querySelector('.mini-stats .mini-stat:first-child .mini-value');
+    if (coverage) coverage.textContent = shiftDisplayDate(coverage.textContent);
+
+    home.querySelectorAll('#home-sec-1 tbody tr td:first-child').forEach((cell) => {
+      cell.textContent = shiftDisplayDate(cell.textContent);
+    });
+  }
 
   function getCellText(cell) {
     return (cell.textContent || '').trim().toLowerCase();
@@ -298,6 +319,7 @@ tbody tr.row-total { background:#eef4ff; font-weight:700; }
     section.classList.add('collapsed-section');
   }
 
+  syncHomepageBusinessDates();
   document.querySelectorAll('section[data-filterable="true"]').forEach(buildFilter);
   document.querySelectorAll('section[data-collapsible="true"]').forEach(makeCollapsible);
 })();

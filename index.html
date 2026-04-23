@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>长沙思维完课催补率</title>
-  <meta http-equiv="refresh" content="0; url=./Output/latest.html" />
   <style>
     body {
       margin: 0;
@@ -43,7 +42,15 @@
   <div class="card">
     <h1>长沙思维完课催补率</h1>
     <p>正在跳转到最新 HTML 报告。如果没有自动打开，请点击下面的链接。</p>
-    <p><a href="./Output/latest.html">打开最新报告</a></p>
+    <p><a id="latest-link" href="./Output/latest.html">打开最新报告</a></p>
   </div>
+  <script>
+    (function () {
+      var latestUrl = "./Output/latest.html?v=" + Date.now();
+      var link = document.getElementById("latest-link");
+      if (link) link.href = latestUrl;
+      window.location.replace(latestUrl);
+    })();
+  </script>
 </body>
 </html>

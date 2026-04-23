@@ -1,6 +1,10 @@
 .DS_Store
 .cursor/
 Input/
+Output/.~*
+Output/Analysis/
+Output/完课催补率组长动作版_*.html
+!Output/latest.html
 tmp_ocr/
 tmp_ocr2/
 Streamlit_business_board.py

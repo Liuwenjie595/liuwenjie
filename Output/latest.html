@@ -301,6 +301,123 @@ tbody tr.row-total { background:#eef4ff; font-weight:700; }
   document.querySelectorAll('section[data-filterable="true"]').forEach(buildFilter);
   document.querySelectorAll('section[data-collapsible="true"]').forEach(makeCollapsible);
 })();
+ </script>
+<script>
+(function () {
+  function getText(cell) {
+    return (cell && cell.textContent ? cell.textContent : '').trim();
+  }
+
+  function setupTeacherSection(section) {
+    if (!section || section.dataset.teacherFallbackReady === 'true') return;
+    if (section.querySelector('.quick-filter-groups')) {
+      section.dataset.teacherFallbackReady = 'true';
+      return;
+    }
+
+    const table = section.querySelector('table');
+    const tableWrap = section.querySelector('.table-wrap');
+    if (!table || !tableWrap) return;
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    if (!rows.length) return;
+
+    section.dataset.teacherFallbackReady = 'true';
+
+    const tools = document.createElement('div');
+    tools.className = 'section-tools';
+
+    const group = document.createElement('div');
+    group.className = 'tool-group teacher-tools';
+
+    const quickGroups = document.createElement('div');
+    quickGroups.className = 'quick-filter-groups';
+
+    const state = {
+      supervisor: '全部',
+      leader: '全部',
+      status: '异常',
+    };
+
+    function applyTeacherFilters() {
+      rows.forEach((row) => {
+        const cells = row.children;
+        const supervisor = getText(cells[1]);
+        const leader = getText(cells[2]);
+        const status = getText(cells[9]);
+
+        let visible = true;
+        if (state.supervisor !== '全部' && supervisor !== state.supervisor) visible = false;
+        if (visible && state.leader !== '全部' && leader !== state.leader) visible = false;
+        if (visible && state.status !== '全部' && !status.includes(state.status)) visible = false;
+
+        row.style.display = visible ? '' : 'none';
+      });
+    }
+
+    function createQuickGroup(label, key, values) {
+      const wrap = document.createElement('div');
+      wrap.className = 'quick-filter-group';
+
+      const title = document.createElement('span');
+      title.className = 'quick-filter-label';
+      title.textContent = label;
+      wrap.appendChild(title);
+
+      const buttons = [];
+      values.forEach((value) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'quick-chip';
+        btn.textContent = value;
+        btn.addEventListener('click', () => {
+          state[key] = value;
+          buttons.forEach((item) => item.classList.remove('active'));
+          btn.classList.add('active');
+          applyTeacherFilters();
+        });
+        if (state[key] === value) btn.classList.add('active');
+        wrap.appendChild(btn);
+        buttons.push(btn);
+      });
+
+      quickGroups.appendChild(wrap);
+    }
+
+    const supervisorValues = Array.from(new Set(rows.map((row) => getText(row.children[1])).filter(Boolean)));
+    const leaderValues = Array.from(new Set(rows.map((row) => getText(row.children[2])).filter(Boolean))).sort();
+
+    createQuickGroup('主管', 'supervisor', ['全部', ...supervisorValues]);
+    createQuickGroup('组长', 'leader', ['全部', ...leaderValues]);
+    createQuickGroup('异常状态', 'status', ['全部', '异常', '正常']);
+
+    const resetBtn = document.createElement('button');
+    resetBtn.type = 'button';
+    resetBtn.className = 'filter-reset';
+    resetBtn.textContent = '重置筛选';
+    resetBtn.addEventListener('click', () => {
+      state.supervisor = '全部';
+      state.leader = '全部';
+      state.status = '异常';
+      group.querySelectorAll('.quick-filter-group').forEach((wrap) => {
+        const label = getText(wrap.querySelector('.quick-filter-label'));
+        const defaultValue = label === '异常状态' ? '异常' : '全部';
+        wrap.querySelectorAll('.quick-chip').forEach((btn) => {
+          btn.classList.toggle('active', btn.textContent === defaultValue);
+        });
+      });
+      applyTeacherFilters();
+    });
+
+    group.appendChild(quickGroups);
+    group.appendChild(resetBtn);
+    tools.appendChild(group);
+    section.insertBefore(tools, tableWrap);
+    applyTeacherFilters();
+  }
+
+  document.querySelectorAll('section[data-only-abnormal-default="true"]').forEach(setupTeacherSection);
+})();
 </script>
 </body>
 </html>
